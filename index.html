@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Autorisation reçue</title>
+<style>
+  :root { --bg:#f8fafc; --card:#fff; --text:#0f172a; --muted:#64748b; --accent:#4f46e5; --border:#e2e8f0; --err:#b91c1c; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f172a; --card:#1e293b; --text:#f1f5f9; --muted:#94a3b8; --accent:#818cf8; --border:#334155; --err:#f87171; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; display:grid; place-items:center; padding:16px;
+         background:var(--bg); color:var(--text); font:16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { width:100%; max-width:560px; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px; }
+  h1 { font-size:1.3rem; margin:0 0 8px; }
+  p { color:var(--muted); margin:0 0 16px; }
+  textarea { width:100%; min-height:110px; padding:12px; border-radius:8px; border:1px solid var(--border);
+             background:var(--bg); color:var(--text); font:14px/1.4 ui-monospace, Consolas, monospace; word-break:break-all; resize:vertical; }
+  button { margin-top:12px; width:100%; padding:12px; border:0; border-radius:8px; background:var(--accent); color:#fff; font-size:1rem; cursor:pointer; }
+  .err { color:var(--err); }
+  footer { margin-top:16px; font-size:.85rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <div id="ok" hidden>
+    <h1>Merci, l'autorisation est accordée ✅</h1>
+    <p>Copie le code ci-dessous et envoie-le à la personne qui t'a transmis le lien. Il n'est valable que peu de temps et une seule fois.</p>
+    <textarea id="code" readonly></textarea>
+    <button id="copy" type="button">Copier le code</button>
+  </div>
+  <div id="ko" hidden>
+    <h1 class="err">Autorisation non accordée</h1>
+    <p id="reason"></p>
+  </div>
+  <div id="none" hidden>
+    <h1>Page de redirection</h1>
+    <p>Cette page affiche le code d'autorisation Instagram ou TikTok après connexion. Aucun code n'a été reçu.</p>
+  </div>
+  <footer><a href="privacy.html">Politique de confidentialité</a></footer>
+</main>
+<script>
+  const q = new URLSearchParams(location.search);
+  const code = (q.get("code") || "").replace(/#_?$/, "");
+  const error = q.get("error") || q.get("error_reason");
+  if (code) {
+    document.getElementById("ok").hidden = false;
+    const t = document.getElementById("code");
+    t.value = code;
+    document.getElementById("copy").onclick = async () => {
+      try { await navigator.clipboard.writeText(code); } catch { t.select(); document.execCommand("copy"); }
+      document.getElementById("copy").textContent = "Copié ✔";
+    };
+  } else if (error) {
+    document.getElementById("ko").hidden = false;
+    document.getElementById("reason").textContent = q.get("error_description") || error;
+  } else {
+    document.getElementById("none").hidden = false;
+  }
+</script>
+</body>
+</html>
